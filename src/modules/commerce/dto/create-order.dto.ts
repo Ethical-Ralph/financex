@@ -14,7 +14,4 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => OrderItemDto)
   orderItems: OrderItemDto[];
-
-  @IsNotEmpty()
-  businessId: string;
 }

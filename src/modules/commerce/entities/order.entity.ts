@@ -14,9 +14,12 @@ export class Order extends BaseTable {
   @Column()
   totalPrice: number;
 
+  @Column()
+  businessId: string;
+
   @ManyToOne(() => Business)
-  @JoinColumn()
-  business: Business;
+  @JoinColumn({ name: 'businessId' })
+  business?: Business;
 
   @Column()
   departmentHeadId: string;

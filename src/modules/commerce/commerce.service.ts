@@ -1,8 +1,9 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CommerceRepository } from './commerce.repository';
 import { BusinessRepository } from '../business/business.repository';
-import { Order, OrderItems } from './entities';
+import { InventoryItem, Order, OrderItems } from './entities';
+import { CreateInventoryItemDto } from './dto';
 
 @Injectable()
 export class CommerceService {
@@ -56,20 +57,57 @@ export class CommerceService {
 
     const orderPayload: Order = {
       orderItems,
-      business: businessExists,
+      businessId: businessExists.id,
       departmentHeadId: departmentId,
       totalPrice: orderItems.reduce((acc, item) => acc + item.price, 0),
     };
 
     const order = await this.commerceRepository.createOrder(orderPayload);
 
-    await this.commerceRepository.logTransaction({
-      businessId,
-      departmentId,
-      orderId: order.id,
-      totalAmount: order.totalPrice,
-    });
+    await this.commerceRepository
+      .logTransaction({
+        businessId,
+        departmentId,
+        orderId: order.id,
+        totalAmount: order.totalPrice,
+      })
+      // fail silently, since it's not critical
+      .catch(Logger.error);
 
     return order;
+  }
+
+  async createInventoryItem(
+    businessId: string,
+    payload: CreateInventoryItemDto,
+  ) {
+    const businessExists = await this.businessRepository.findBusinessById(
+      businessId,
+    );
+
+    if (!businessExists) {
+      throw new HttpException('Invalid business', 400);
+    }
+
+    const item: InventoryItem = {
+      name: payload.name,
+      description: payload.description,
+      price: payload.price,
+      business: businessExists,
+    };
+
+    return this.commerceRepository.createInventoryItem(item);
+  }
+
+  async getBusinessOrders(businessId: string) {
+    const businessExists = await this.businessRepository.findBusinessById(
+      businessId,
+    );
+
+    if (!businessExists) {
+      throw new HttpException('Invalid business', 400);
+    }
+
+    return this.commerceRepository.getBusinessOrders(businessId);
   }
 }

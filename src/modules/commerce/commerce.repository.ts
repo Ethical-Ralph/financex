@@ -36,4 +36,16 @@ export class CommerceRepository {
   }): Promise<Transaction> {
     return this.transactionModel.create(transaction);
   }
+
+  async createInventoryItem(item: InventoryItem) {
+    return this.inventoryItemRepo.save(item);
+  }
+
+  async getBusinessOrders(businessId: string): Promise<Order[]> {
+    return this.orderRepo.find({ where: { businessId } });
+  }
+
+  async getBusinessTransactionLogs(businessId: string): Promise<Transaction[]> {
+    return this.transactionModel.find({ businessId });
+  }
 }
