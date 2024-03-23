@@ -12,7 +12,7 @@ export class CommerceController {
     @Param('businessId') businessId: string,
     @Param('departmentId') departmentId: string,
   ) {
-    return this.commerceService.create(businessId, departmentId, payload);
+    return this.commerceService.createOrder(businessId, departmentId, payload);
   }
 
   @Post(':businessId/inventory')

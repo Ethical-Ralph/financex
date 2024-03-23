@@ -88,12 +88,12 @@ describe('CommerceService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('create', () => {
-    it('should create a new order', async () => {
+  describe('createOrder', () => {
+    it('should createOrder a new order', async () => {
       const createOrderDto: CreateOrderDto = {
         orderItems: [{ itemId: 'validItemId', quantity: 2 }],
       };
-      const result = await service.create(
+      const result = await service.createOrder(
         'validBusinessId',
         'validDepartmentId',
         createOrderDto,
@@ -110,7 +110,7 @@ describe('CommerceService', () => {
 
     it('should throw an error if business does not exist', async () => {
       await expect(
-        service.create(
+        service.createOrder(
           'invalidBusinessId',
           'validDepartmentId',
           {} as CreateOrderDto,
@@ -125,7 +125,7 @@ describe('CommerceService', () => {
       const createOrderDto: CreateOrderDto = {
         orderItems: [{ itemId: 'validItemId', quantity: 2 }],
       };
-      await service.create(
+      await service.createOrder(
         'validBusinessId',
         'validDepartmentId',
         createOrderDto,
@@ -142,7 +142,11 @@ describe('CommerceService', () => {
         orderItems: [{ itemId: 'invalidItemId', quantity: 2 }],
       };
       await expect(
-        service.create('validBusinessId', 'validDepartmentId', createOrderDto),
+        service.createOrder(
+          'validBusinessId',
+          'validDepartmentId',
+          createOrderDto,
+        ),
       ).rejects.toThrowError(HttpException);
       expect(commerceRepositoryMock.findInventoryItemById).toBeCalledWith(
         'invalidItemId',
@@ -151,7 +155,7 @@ describe('CommerceService', () => {
   });
 
   describe('createInventoryItem', () => {
-    it('should create a new inventory item', async () => {
+    it('should createOrder a new inventory item', async () => {
       const createInventoryItemDto: CreateInventoryItemDto = {
         name: 'New Item',
         description: 'Item description',

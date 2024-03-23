@@ -16,7 +16,7 @@ export class CommerceService {
 
   private TAX_RATE = 0.1;
 
-  async create(
+  async createOrder(
     businessId: string,
     departmentId: string,
     payload: CreateOrderDto,
