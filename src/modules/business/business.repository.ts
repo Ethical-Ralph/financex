@@ -17,6 +17,15 @@ export class BusinessRepository {
     return this.businessRepo.findOne({ where: { id } });
   }
 
+  validateBusinessDepartment(businessId: string, departmentId: string) {
+    return this.businessRepo.findOne({
+      where: { id: businessId, departmentHeads: { id: departmentId } },
+      relations: {
+        departmentHeads: true,
+      },
+    });
+  }
+
   findDepartmentHeadByEmail(email: string) {
     return this.departmentHeadRepo.findOne({ where: { email } });
   }

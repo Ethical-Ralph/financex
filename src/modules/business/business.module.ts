@@ -9,5 +9,6 @@ import { BusinessRepository } from './business.repository';
   imports: [TypeOrmModule.forFeature([Business, DepartmentHead])],
   controllers: [BusinessController],
   providers: [BusinessService, BusinessRepository],
+  exports: [BusinessRepository],
 })
 export class BusinessModule {}

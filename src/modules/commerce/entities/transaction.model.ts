@@ -7,7 +7,9 @@ export interface Transaction extends Document {
   totalAmount: number;
 }
 
-const TransactionSchema = new Schema(
+export const TransactionModelName = 'transaction';
+
+export const TransactionSchema = new Schema(
   {
     businessId: { type: String, required: true },
     departmentId: { type: String, required: true },
@@ -17,9 +19,4 @@ const TransactionSchema = new Schema(
   {
     timestamps: true,
   },
-);
-
-export const TransactionModel = model<Transaction>(
-  'transaction',
-  TransactionSchema,
 );

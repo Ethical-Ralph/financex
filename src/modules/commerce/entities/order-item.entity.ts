@@ -7,7 +7,7 @@ import { Order } from './order.entity';
 export class OrderItems extends BaseTable {
   @ManyToOne(() => Order)
   @JoinColumn()
-  order: Order;
+  order?: Order;
 
   @ManyToOne(() => InventoryItem)
   @JoinColumn()

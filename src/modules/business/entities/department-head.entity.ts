@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, In, Index } from 'typeorm';
 import { BaseTable } from '../../../database';
 import { Business } from './business.entity';
 
@@ -8,6 +8,7 @@ export class DepartmentHead extends BaseTable {
   name: string;
 
   @Column()
+  @Index({ unique: true })
   email: string;
 
   @ManyToOne(() => Business, (business) => business.departmentHeads)
