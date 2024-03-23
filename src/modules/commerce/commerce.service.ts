@@ -4,13 +4,17 @@ import { CommerceRepository } from './commerce.repository';
 import { BusinessRepository } from '../business/business.repository';
 import { InventoryItem, Order, OrderItems } from './entities';
 import { CreateInventoryItemDto } from './dto';
+import { TaxService } from './tax.service';
 
 @Injectable()
 export class CommerceService {
   constructor(
     private readonly commerceRepository: CommerceRepository,
     private businessRepository: BusinessRepository,
+    private taxService: TaxService,
   ) {}
+
+  private TAX_RATE = 0.1;
 
   async create(
     businessId: string,
@@ -73,6 +77,13 @@ export class CommerceService {
       })
       // fail silently, since it's not critical
       .catch(Logger.error);
+
+    await this.taxService.logTax({
+      orderId: order.id,
+      businessId,
+      totalAmount: order.totalPrice,
+      taxAmount: order.totalPrice * this.TAX_RATE,
+    });
 
     return order;
   }
