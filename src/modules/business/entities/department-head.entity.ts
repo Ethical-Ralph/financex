@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { BaseTable } from 'src/database';
+import { BaseTable } from '../../../database';
 import { Business } from './business.entity';
 
 @Entity({ name: 'department_head' })

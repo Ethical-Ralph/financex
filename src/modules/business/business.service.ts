@@ -1,26 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreateBusinessDto } from './dto/create-business.dto';
-import { UpdateBusinessDto } from './dto/update-business.dto';
+import { CreateBusinessDepartmentDto } from './dto';
+import { BusinessRepository } from './business.repository';
 
 @Injectable()
 export class BusinessService {
-  create(createBusinessDto: CreateBusinessDto) {
-    return 'This action adds a new business';
+  constructor(private businessRepository: BusinessRepository) {}
+
+  create(payload: CreateBusinessDto) {
+    return this.businessRepository.createBusiness(payload);
   }
 
-  findAll() {
-    return `This action returns all business`;
-  }
+  async createDepartment(
+    businessId: string,
+    payload: CreateBusinessDepartmentDto,
+  ) {
+    const business = await this.businessRepository.findBusinessById(businessId);
 
-  findOne(id: number) {
-    return `This action returns a #${id} business`;
-  }
+    if (!business) {
+      throw new HttpException('Business not found', 404);
+    }
 
-  update(id: number, updateBusinessDto: UpdateBusinessDto) {
-    return `This action updates a #${id} business`;
-  }
+    const departmentHead =
+      await this.businessRepository.findDepartmentHeadByEmail(payload.email);
 
-  remove(id: number) {
-    return `This action removes a #${id} business`;
+    if (departmentHead) {
+      throw new HttpException('Department head already exists', 400);
+    }
+
+    return this.businessRepository.createDepartment(business, payload);
   }
 }

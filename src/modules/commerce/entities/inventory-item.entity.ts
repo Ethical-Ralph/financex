@@ -1,5 +1,5 @@
 import { Entity, Column } from 'typeorm';
-import { BaseTable } from 'src/database';
+import { BaseTable } from '../../../database';
 
 @Entity({ name: 'inventory_item' })
 export class InventoryItem extends BaseTable {

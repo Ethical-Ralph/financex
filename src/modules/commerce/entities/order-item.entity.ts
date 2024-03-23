@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { BaseTable } from 'src/database';
+import { BaseTable } from '../../..//database';
 import { InventoryItem } from './inventory-item.entity';
 import { Order } from './order.entity';
 

@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany } from 'typeorm';
-import { BaseTable } from 'src/database';
+import { BaseTable } from '../../../database';
 import { DepartmentHead } from './department-head.entity';
 
 @Entity({ name: 'business' })
