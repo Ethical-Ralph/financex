@@ -7,6 +7,7 @@ import { BusinessRepository } from './business.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TransactionModelName, TransactionSchema } from '../commerce/entities';
 import { BusinessCron } from './business.cron';
+import { RedisModule } from '../../shared';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { BusinessCron } from './business.cron';
     MongooseModule.forFeature([
       { name: TransactionModelName, schema: TransactionSchema },
     ]),
+    RedisModule,
   ],
   controllers: [BusinessController],
   providers: [BusinessService, BusinessRepository, BusinessCron],

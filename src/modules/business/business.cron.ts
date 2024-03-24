@@ -1,10 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { BusinessRepository } from './business.repository';
+import { RedisService } from '../../shared';
 
 @Injectable()
 export class BusinessCron {
-  constructor(private businessRepository: BusinessRepository) {}
+  constructor(
+    private businessRepository: BusinessRepository,
+    private redisService: RedisService,
+  ) {}
 
   // dummy logic to calculate credit score
   private determineCreditScore(totalAmount: number, totalTransactions: number) {
@@ -96,14 +100,38 @@ export class BusinessCron {
       };
     };
 
-    for (let page = 1; ; page++) {
-      const { hasNextPage, total } = await processBusinesses(page);
+    const uniqueServerId = Math.random().toString(36).substring(7);
 
-      Logger.log(`Processed page ${page} of ${total}`);
+    // acquire lock to prevent multiple instances of the server from running the cron job
+    const ttl = 60 * 60 * 24; // 24 hours
+    const isMaster = await this.redisService.acquireLock(
+      'business_credit_score',
+      uniqueServerId,
+      ttl,
+    );
 
-      if (!hasNextPage) {
-        break;
+    if (!isMaster) {
+      Logger.log('Another server instance is already processing the cron job');
+      return;
+    }
+
+    try {
+      for (let page = 1; ; page++) {
+        const { hasNextPage, total } = await processBusinesses(page);
+
+        Logger.log(`Processed page ${page} of ${total}`);
+
+        if (!hasNextPage) {
+          break;
+        }
       }
+    } catch (error) {
+      Logger.error(`Error processing business credit score: ${error.message}`);
+    } finally {
+      await this.redisService.releaseLock(
+        'business_credit_score',
+        uniqueServerId,
+      );
     }
   }
 }

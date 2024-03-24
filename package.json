@@ -23,6 +23,7 @@
   "dependencies": {
     "@bull-board/api": "^5.15.1",
     "@bull-board/express": "^5.15.1",
+    "@nestjs-modules/ioredis": "^2.0.2",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/bullmq": "^10.1.0",
     "@nestjs/common": "^9.0.0",
@@ -33,6 +34,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/schedule": "^4.0.1",
     "@nestjs/typeorm": "^10.0.2",
+    "add": "^2.0.6",
     "axios": "^1.6.8",
     "bullmq": "^5.4.5",
     "class-transformer": "^0.5.1",
@@ -42,7 +44,8 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
