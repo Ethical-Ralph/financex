@@ -51,7 +51,7 @@ export class BusinessCron {
       }
     } catch (error) {
       this.logger.error(
-        `Error processing business credit score: ${error.message}`,
+        `Error processing business credit score cron: ${error.message}`,
       );
     } finally {
       // Release the lock
@@ -69,18 +69,32 @@ export class BusinessCron {
         limit: 100,
       });
 
-    this.logger.log(`Processing ${businesses.length} businesses`);
-
     // Push jobs to BullMQ queue for processing, so it can be done in parallel and scale better
-    await Promise.allSettled(
+    const res = await Promise.allSettled(
       businesses.map(async (business) => {
-        await this.businessQueue.add('calculateCreditScore', {
-          businessId: business.id,
-        });
+        try {
+          await this.businessQueue.add('calculateCreditScore', {
+            businessId: business.id,
+          });
+        } catch (error) {
+          this.logger.error(
+            `Error sending job to queue for business ID: ${business.id}`,
+          );
+          throw error;
+        }
       }),
     );
 
-    this.logger.log(`Processed ${businesses.length} businesses`);
+    const failed = res.filter(
+      (r): r is PromiseRejectedResult => r.status === 'rejected',
+    );
+
+    // to monitoring/alert service
+    this.logger.log(
+      `Processed ${businesses.length - failed.length} of ${
+        businesses.length
+      } businesses`,
+    );
 
     return {
       hasNextPage: businessMeta.hasNextPage,
