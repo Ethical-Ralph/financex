@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Get } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, Query } from '@nestjs/common';
 import { CommerceService } from './commerce.service';
 import { CreateInventoryItemDto, CreateOrderDto } from './dto';
 
@@ -6,7 +6,7 @@ import { CreateInventoryItemDto, CreateOrderDto } from './dto';
 export class CommerceController {
   constructor(private readonly commerceService: CommerceService) {}
 
-  @Post(':businessId/:departmentId/order')
+  @Post(':businessId/order/:departmentId')
   create(
     @Body() payload: CreateOrderDto,
     @Param('businessId') businessId: string,
@@ -24,7 +24,11 @@ export class CommerceController {
   }
 
   @Get(':businessId/orders')
-  getBusinessOrders(@Param('businessId') businessId: string) {
-    return this.commerceService.getBusinessOrders(businessId);
+  getBusinessOrders(
+    @Param('businessId') businessId: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    return this.commerceService.getBusinessOrders(businessId, { page, limit });
   }
 }

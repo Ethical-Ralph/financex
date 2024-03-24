@@ -105,7 +105,13 @@ export class CommerceService {
     return this.commerceRepository.createInventoryItem(item);
   }
 
-  async getBusinessOrders(businessId: string) {
+  async getBusinessOrders(
+    businessId: string,
+    pagination: {
+      page: number;
+      limit: number;
+    },
+  ) {
     const businessExists = await this.businessRepository.findBusinessById(
       businessId,
     );
@@ -114,6 +120,14 @@ export class CommerceService {
       throw new HttpException('Invalid business', 400);
     }
 
-    return this.commerceRepository.getBusinessOrders(businessId);
+    const [data, meta] = await this.commerceRepository.getBusinessOrders(
+      businessId,
+      pagination,
+    );
+
+    return {
+      data,
+      meta,
+    };
   }
 }

@@ -35,7 +35,13 @@ describe('CommerceService', () => {
           ...orderPayload,
         } as Order);
       }),
-      getBusinessOrders: jest.fn().mockResolvedValue([]),
+      getBusinessOrders: jest.fn().mockResolvedValue([
+        [],
+        {
+          totalPages: 0,
+          hasNextPage: false,
+        },
+      ]),
       createInventoryItem: jest
         .fn()
         .mockImplementation((item: InventoryItem) => {
@@ -171,9 +177,16 @@ describe('CommerceService', () => {
 
   describe('getBusinessOrders', () => {
     it('should return orders for a valid business', async () => {
-      const result = await service.getBusinessOrders('validBusinessId');
+      const result = await service.getBusinessOrders('validBusinessId', {
+        page: 1,
+        limit: 10,
+      });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
+      expect(result.meta).toEqual({
+        totalPages: 0,
+        hasNextPage: false,
+      });
     });
   });
 });

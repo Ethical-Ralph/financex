@@ -19,6 +19,7 @@ export class BusinessCron {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async calculateBusinessCreditScore() {
     // Acquire lock to prevent multiple instances of the server from running the cron job
+    // and processing the same data
     const lockKey = 'business_credit_score';
     const ttl = 60 * 60 * 24; // 24 hours
     const uniqueServerId = Math.random().toString(36).substring(7);
@@ -69,7 +70,8 @@ export class BusinessCron {
         limit: 100,
       });
 
-    // Push jobs to BullMQ queue for processing, so it can be done in parallel and scale better
+    // Push jobs to BullMQ queue for processing, so it can be done in parallel
+    // and scalability support by adding more workers
     const res = await Promise.allSettled(
       businesses.map(async (business) => {
         try {

@@ -41,8 +41,36 @@ export class CommerceRepository {
     return this.inventoryItemRepo.save(item);
   }
 
-  async getBusinessOrders(businessId: string): Promise<Order[]> {
-    return this.orderRepo.find({ where: { businessId } });
+  async getBusinessOrders(
+    businessId: string,
+    meta: {
+      page: number;
+      limit: number;
+    },
+  ): Promise<
+    [
+      Order[],
+      {
+        totalPages: number;
+        hasNextPage: boolean;
+      },
+    ]
+  > {
+    const { page = 1, limit = 10 } = meta;
+
+    const [data, count] = await this.orderRepo.findAndCount({
+      where: { businessId },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    return [
+      data,
+      {
+        totalPages: Math.ceil(count / limit),
+        hasNextPage: count > (page - 1) * limit + limit,
+      },
+    ];
   }
 
   async getBusinessTransactionLogs(businessId: string): Promise<Transaction[]> {
