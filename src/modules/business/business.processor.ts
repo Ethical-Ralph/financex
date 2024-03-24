@@ -1,9 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job, Queue } from 'bullmq';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { BusinessRepository } from './business.repository';
 import { BUSINESS_CREDIT_SCORE_QUEUE } from './business.constant';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 @Processor(BUSINESS_CREDIT_SCORE_QUEUE)
 export class BusinessProcessor extends WorkerHost {
@@ -77,6 +77,7 @@ export class BusinessProcessor extends WorkerHost {
     return { creditSum, count, hasNextPage };
   }
 
+  // dummy credit score calculation
   private determineCreditScore(totalAmount: number, totalTransactions: number) {
     let creditScore = 0;
     const scoringSystem = [
