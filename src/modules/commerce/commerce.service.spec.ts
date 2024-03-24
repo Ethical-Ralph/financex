@@ -27,7 +27,7 @@ describe('CommerceService', () => {
             price: 10,
           } as InventoryItem);
         } else {
-          return Promise.resolve(null); // Simulate not finding the item
+          return Promise.resolve(null);
         }
       }),
       createOrder: jest.fn().mockImplementation((orderPayload: Order) => {
@@ -49,18 +49,18 @@ describe('CommerceService', () => {
         .mockImplementation((item: InventoryItem) => {
           return Promise.resolve(item);
         }),
+      getStats: jest.fn(),
     };
 
     businessRepositoryMock = {
       findBusinessById: jest.fn().mockImplementation((businessId: string) => {
-        // Mock finding a business by ID
-        if (businessId === 'validBusinessId') {
+        if (['validBusinessId', 'notCachedBusinessId'].includes(businessId)) {
           return Promise.resolve({
-            id: 'validBusinessId',
+            id: businessId,
             name: 'Test Business',
           });
         } else {
-          return Promise.resolve(null); // Simulate not finding the business
+          return Promise.resolve(null);
         }
       }),
       validateBusinessDepartment: jest.fn().mockResolvedValue(true),
@@ -73,11 +73,17 @@ describe('CommerceService', () => {
     redisService = {
       acquireLock: jest.fn().mockResolvedValue(true),
       releaseLock: jest.fn().mockResolvedValue(true),
-      getBusinessStats: jest.fn().mockResolvedValue({
-        totalOrders: 0,
-        totalAmount: 0,
-        totalOrdersToday: 0,
-        totalAmountToday: 0,
+      getBusinessStats: jest.fn().mockImplementation((businessId: string) => {
+        if (businessId === 'validBusinessId') {
+          return Promise.resolve({
+            totalOrders: 10,
+            totalAmount: 200,
+            totalOrdersToday: 5,
+            totalAmountToday: 100,
+          });
+        } else {
+          return Promise.resolve(null);
+        }
       }),
       setBusinessStats: jest.fn().mockResolvedValue(undefined),
       invalidateBusinessStatsCache: jest.fn().mockResolvedValue(undefined),
@@ -206,6 +212,59 @@ describe('CommerceService', () => {
         totalPages: 0,
         hasNextPage: false,
       });
+    });
+  });
+
+  describe('getBusinessStats', () => {
+    it('should return business statistics from cache if available', async () => {
+      redisService.getBusinessStats = jest.fn().mockResolvedValueOnce({
+        totalOrders: 15,
+        totalAmount: 300,
+        totalOrdersToday: 7,
+        totalAmountToday: 150,
+      });
+
+      const stats = await service.getBusinessStats('validBusinessId');
+
+      expect(stats).toEqual({
+        totalOrders: 15,
+        totalAmount: 300,
+        totalOrdersToday: 7,
+        totalAmountToday: 150,
+      });
+      expect(redisService.getBusinessStats).toHaveBeenCalledWith(
+        'validBusinessId',
+      );
+      expect(commerceRepositoryMock.getStats).not.toHaveBeenCalled();
+      expect(redisService.setBusinessStats).not.toHaveBeenCalled();
+    });
+
+    it('should return business statistics from database if not available in cache', async () => {
+      await service.getBusinessStats('notCachedBusinessId');
+
+      expect(redisService.getBusinessStats).toHaveBeenCalledWith(
+        'notCachedBusinessId',
+      );
+      expect(commerceRepositoryMock.getStats).toHaveBeenCalledWith(
+        'notCachedBusinessId',
+      );
+      expect(redisService.setBusinessStats).toHaveBeenCalled();
+    });
+
+    it('should throw an error if the business does not exist', async () => {
+      businessRepositoryMock.findBusinessById = jest
+        .fn()
+        .mockResolvedValueOnce(null);
+
+      await expect(
+        service.getBusinessStats('invalidBusinessId'),
+      ).rejects.toThrowError(HttpException);
+      expect(businessRepositoryMock.findBusinessById).toHaveBeenCalledWith(
+        'invalidBusinessId',
+      );
+      expect(redisService.getBusinessStats).not.toHaveBeenCalled();
+      expect(commerceRepositoryMock.getStats).not.toHaveBeenCalled();
+      expect(redisService.setBusinessStats).not.toHaveBeenCalled();
     });
   });
 });

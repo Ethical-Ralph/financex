@@ -138,7 +138,12 @@ export class CommerceService {
     };
   }
 
-  async getBusinessStats(businessId: string) {
+  async getBusinessStats(businessId: string): Promise<{
+    totalOrders: number;
+    totalAmount: number;
+    totalOrdersToday: number;
+    totalAmountToday: number;
+  }> {
     const businessExists = await this.businessRepository.findBusinessById(
       businessId,
     );
