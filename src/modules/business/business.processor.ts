@@ -1,12 +1,16 @@
 import { Logger } from '@nestjs/common';
-import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Job } from 'bullmq';
+import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
+import { Job, Queue } from 'bullmq';
 import { BusinessRepository } from './business.repository';
 import { BUSINESS_CREDIT_SCORE_QUEUE } from './business.constant';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 @Processor(BUSINESS_CREDIT_SCORE_QUEUE)
 export class BusinessProcessor extends WorkerHost {
-  constructor(private readonly businessRepository: BusinessRepository) {
+  constructor(
+    private readonly businessRepository: BusinessRepository,
+    @InjectQueue(BUSINESS_CREDIT_SCORE_QUEUE) private business: Queue,
+  ) {
     super();
   }
 
@@ -93,5 +97,9 @@ export class BusinessProcessor extends WorkerHost {
     }
 
     return creditScore;
+  }
+
+  getQueueAdapter() {
+    return [new BullMQAdapter(this.business, { readOnlyMode: false })];
   }
 }

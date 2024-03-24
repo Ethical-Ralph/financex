@@ -4,7 +4,7 @@ import { Job } from 'bullmq';
 import { CommerceRepository } from './commerce.repository';
 import { TaxService } from './tax.service';
 
-export const COMMERCE_QUEUE_NAME = 'commerce_queue';
+export const COMMERCE_QUEUE = 'COMMERCE_QUEUE';
 
 type TSuccessString = 'transaction_logged' | 'tax_proceesed';
 
@@ -17,7 +17,7 @@ export type TCommerceOrderDetails = {
   success?: Array<TSuccessString>;
 };
 
-@Processor(COMMERCE_QUEUE_NAME)
+@Processor(COMMERCE_QUEUE)
 export class CommerceProcessor extends WorkerHost {
   constructor(
     private readonly commerceRepository: CommerceRepository,

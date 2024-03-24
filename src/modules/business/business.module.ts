@@ -41,6 +41,6 @@ import { BusinessProcessor } from './business.processor';
     BusinessCron,
     BusinessProcessor,
   ],
-  exports: [BusinessRepository],
+  exports: [BusinessRepository, BusinessProcessor],
 })
 export class BusinessModule {}

@@ -2,17 +2,12 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { ExpressAdapter } from '@bull-board/express';
-import { createBullBoard } from '@bull-board/api';
-import {
-  COMMERCE_QUEUE_NAME,
-  TCommerceOrderDetails,
-} from './commerce.processor';
+import { COMMERCE_QUEUE, TCommerceOrderDetails } from './commerce.processor';
 
 @Injectable()
 export class CommerceQueueService {
   constructor(
-    @InjectQueue(COMMERCE_QUEUE_NAME) private readonly commerceQueue: Queue,
+    @InjectQueue(COMMERCE_QUEUE) private readonly commerceQueue: Queue,
   ) {}
 
   private logger = new Logger(CommerceQueueService.name);
@@ -38,14 +33,7 @@ export class CommerceQueueService {
     }
   }
 
-  getBoardAdapter() {
-    const serverAdapter = new ExpressAdapter();
-
-    createBullBoard({
-      queues: [new BullMQAdapter(this.commerceQueue, { readOnlyMode: false })],
-      serverAdapter,
-    });
-
-    return serverAdapter;
+  getQueueAdapter() {
+    return [new BullMQAdapter(this.commerceQueue, { readOnlyMode: false })];
   }
 }
