@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import {
   InventoryItem,
   Order,
   Transaction,
   TransactionModelName,
 } from './entities';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 
 @Injectable()
 export class CommerceRepository {
@@ -71,9 +71,5 @@ export class CommerceRepository {
         hasNextPage: count > (page - 1) * limit + limit,
       },
     ];
-  }
-
-  async getBusinessTransactionLogs(businessId: string): Promise<Transaction[]> {
-    return this.transactionModel.find({ businessId });
   }
 }
