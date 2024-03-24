@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { BusinessService } from './business.service';
 import { BusinessController } from './business.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { Business, DepartmentHead } from './entities';
 import { BusinessRepository } from './business.repository';
-import { MongooseModule } from '@nestjs/mongoose';
 import { TransactionModelName, TransactionSchema } from '../commerce/entities';
 import { BusinessCron } from './business.cron';
 import { RedisModule } from '../../shared';
+import { BUSINESS_CREDIT_SCORE_QUEUE } from './business.constant';
+import { BusinessProcessor } from './business.processor';
 
 @Module({
   imports: [
@@ -16,9 +19,28 @@ import { RedisModule } from '../../shared';
       { name: TransactionModelName, schema: TransactionSchema },
     ]),
     RedisModule,
+    BullModule.registerQueue({
+      name: BUSINESS_CREDIT_SCORE_QUEUE,
+      defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: false,
+        // when a job fails, retry it 3 times with an exponential backoff delay of 1 second
+        // before finally failing
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
+      },
+    }),
   ],
   controllers: [BusinessController],
-  providers: [BusinessService, BusinessRepository, BusinessCron],
+  providers: [
+    BusinessService,
+    BusinessRepository,
+    BusinessCron,
+    BusinessProcessor,
+  ],
   exports: [BusinessRepository],
 })
 export class BusinessModule {}
