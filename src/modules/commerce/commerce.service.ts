@@ -1,17 +1,17 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CommerceRepository } from './commerce.repository';
 import { BusinessRepository } from '../business/business.repository';
 import { InventoryItem, Order, OrderItems } from './entities';
 import { CreateInventoryItemDto } from './dto';
-import { TaxService } from './tax.service';
+import { CommerceQueueService } from './commerce.queue';
 
 @Injectable()
 export class CommerceService {
   constructor(
     private readonly commerceRepository: CommerceRepository,
     private businessRepository: BusinessRepository,
-    private taxService: TaxService,
+    private orderQueueService: CommerceQueueService,
   ) {}
 
   private TAX_RATE = 0.1;
@@ -68,21 +68,16 @@ export class CommerceService {
 
     const order = await this.commerceRepository.createOrder(orderPayload);
 
-    await this.commerceRepository
-      .logTransaction({
-        businessId,
-        departmentId,
-        orderId: order.id,
-        totalAmount: order.totalPrice,
-      })
-      // fail silently, since it's not critical
-      .catch(Logger.error);
+    const taxAmount = order.totalPrice * this.TAX_RATE;
 
-    await this.taxService.logTax({
-      orderId: order.id,
+    // process order meta in a queue, to avoid blocking the request
+    // and to properly handle retries in case of failure
+    await this.orderQueueService.processOrderMeta({
       businessId,
+      departmentId,
+      orderId: order.id,
       totalAmount: order.totalPrice,
-      taxAmount: order.totalPrice * this.TAX_RATE,
+      taxAmount,
     });
 
     return order;

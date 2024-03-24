@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BusinessModule } from './modules/business/business.module';
 import { CommerceModule } from './modules/commerce/commerce.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -25,6 +26,15 @@ import { CommerceModule } from './modules/commerce/commerce.module';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+        },
+      }),
     }),
     BusinessModule,
     CommerceModule,

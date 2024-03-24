@@ -16,9 +16,11 @@ export class TaxService {
         'https://taxes.free.beeceptor.com/log-tax',
         orderDetails,
         {
+          // 35 seconds timeout
           timeout: 35 * 1000,
         },
       );
+      Logger.log('Tax logged successfully', orderDetails.orderId);
     } catch (error) {
       Logger.error('Error logging tax:', error.message);
       throw error;
