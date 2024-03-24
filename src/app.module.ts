@@ -27,6 +27,7 @@ import { RedisModule } from './shared';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         uri: configService.get('MONGODB_DATABASE_URL'),
+        dbName: configService.get('MONGODB_DATABASE_NAME'),
       }),
     }),
     ConfigModule.forRoot({
