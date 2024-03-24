@@ -39,40 +39,59 @@ export class CommerceProcessor extends WorkerHost {
       job.data;
 
     const success = job.data?.success || [];
+    const errorArray = [];
 
-    if (!success.includes('transaction_logged')) {
-      await this.commerceRepository.logTransaction({
-        businessId,
-        departmentId,
-        orderId,
-        totalAmount,
-      });
+    try {
+      if (!success.includes('transaction_logged')) {
+        await this.commerceRepository.logTransaction({
+          businessId,
+          departmentId,
+          orderId,
+          totalAmount,
+        });
 
-      await job.updateData({
-        ...job.data,
-        // update success status of the job to avoid reprocessing in case of failure
-        success: this.buildSuccessArray(success, 'transaction_logged'),
-      });
+        await job.updateData({
+          ...job.data,
+          // update success status of the job to avoid reprocessing in case of failure
+          success: this.buildSuccessArray(success, 'transaction_logged'),
+        });
 
-      success.push('transaction_logged');
+        Logger.log('Transaction logged successfully', orderId);
+
+        success.push('transaction_logged');
+      }
+    } catch (error) {
+      Logger.error('Error logging transaction', error);
+      errorArray.push(`transaction_logged: ${error.message}`);
     }
 
-    if (!success.includes('tax_proceesed')) {
-      await this.taxService.logTax({
-        orderId,
-        businessId,
-        totalAmount,
-        taxAmount,
-      });
+    try {
+      if (!success.includes('tax_proceesed')) {
+        await this.taxService.logTax({
+          orderId,
+          businessId,
+          totalAmount,
+          taxAmount,
+        });
 
-      await job.updateData({
-        ...job.data,
-        // update success status of the job to avoid reprocessing in case of failure
-        success: this.buildSuccessArray(success, 'tax_proceesed'),
-      });
+        await job.updateData({
+          ...job.data,
+          // update success status of the job to avoid reprocessing in case of failure
+          success: this.buildSuccessArray(success, 'tax_proceesed'),
+        });
+
+        Logger.log('Tax logged successfully', orderId);
+      }
+    } catch (error) {
+      Logger.error('Error logging tax', error);
+      errorArray.push(`tax_proceesed: ${error.message}`);
     }
 
-    return job.data;
+    if (errorArray.length) {
+      throw new Error(errorArray.join(' | '));
+    }
+
+    return 'completed';
   }
 
   @OnWorkerEvent('completed')
