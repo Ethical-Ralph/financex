@@ -10,6 +10,7 @@ import { ExpressAdapter } from '@bull-board/express';
 import { CommerceQueueService } from './modules/commerce/commerce.queue';
 import { createBullBoard } from '@bull-board/api';
 import { BusinessProcessor } from './modules/business/business.processor';
+import { RedisModule } from './shared';
 
 @Module({
   imports: [
@@ -44,6 +45,10 @@ import { BusinessProcessor } from './modules/business/business.processor';
     ScheduleModule.forRoot(),
     BusinessModule,
     CommerceModule,
+    {
+      global: true,
+      module: RedisModule,
+    },
   ],
   controllers: [],
   providers: [],

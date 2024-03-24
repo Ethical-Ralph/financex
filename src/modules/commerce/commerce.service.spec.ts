@@ -6,12 +6,14 @@ import { HttpException } from '@nestjs/common';
 import { CreateOrderDto, CreateInventoryItemDto } from './dto';
 import { InventoryItem, Order } from './entities';
 import { CommerceQueueService } from './commerce.queue';
+import { RedisService } from '../../shared';
 
 describe('CommerceService', () => {
   let service: CommerceService;
   let commerceRepositoryMock: Partial<CommerceRepository>;
   let businessRepositoryMock: Partial<BusinessRepository>;
   let commerceQueueService: Partial<CommerceQueueService>;
+  let redisService: Partial<RedisService>;
 
   beforeEach(async () => {
     commerceRepositoryMock = {
@@ -68,6 +70,19 @@ describe('CommerceService', () => {
       processOrderMeta: jest.fn().mockResolvedValue(undefined),
     };
 
+    redisService = {
+      acquireLock: jest.fn().mockResolvedValue(true),
+      releaseLock: jest.fn().mockResolvedValue(true),
+      getBusinessStats: jest.fn().mockResolvedValue({
+        totalOrders: 0,
+        totalAmount: 0,
+        totalOrdersToday: 0,
+        totalAmountToday: 0,
+      }),
+      setBusinessStats: jest.fn().mockResolvedValue(undefined),
+      invalidateBusinessStatsCache: jest.fn().mockResolvedValue(undefined),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CommerceService,
@@ -82,6 +97,10 @@ describe('CommerceService', () => {
         {
           provide: CommerceQueueService,
           useValue: commerceQueueService,
+        },
+        {
+          provide: RedisService,
+          useValue: redisService,
         },
       ],
     }).compile();

@@ -8,7 +8,6 @@ import { Business, DepartmentHead } from './entities';
 import { BusinessRepository } from './business.repository';
 import { TransactionModelName, TransactionSchema } from '../commerce/entities';
 import { BusinessCron } from './business.cron';
-import { RedisModule } from '../../shared';
 import { BUSINESS_CREDIT_SCORE_QUEUE } from './business.constant';
 import { BusinessProcessor } from './business.processor';
 
@@ -18,7 +17,6 @@ import { BusinessProcessor } from './business.processor';
     MongooseModule.forFeature([
       { name: TransactionModelName, schema: TransactionSchema },
     ]),
-    RedisModule,
     BullModule.registerQueue({
       name: BUSINESS_CREDIT_SCORE_QUEUE,
       defaultJobOptions: {

@@ -1,10 +1,11 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CommerceRepository } from './commerce.repository';
 import { BusinessRepository } from '../business/business.repository';
 import { InventoryItem, Order, OrderItems } from './entities';
 import { CreateInventoryItemDto } from './dto';
 import { CommerceQueueService } from './commerce.queue';
+import { RedisService } from '../../shared';
 
 @Injectable()
 export class CommerceService {
@@ -12,7 +13,10 @@ export class CommerceService {
     private readonly commerceRepository: CommerceRepository,
     private businessRepository: BusinessRepository,
     private orderQueueService: CommerceQueueService,
+    private redisService: RedisService,
   ) {}
+
+  private logger = new Logger(CommerceService.name);
 
   private TAX_RATE = 0.1;
 
@@ -70,15 +74,20 @@ export class CommerceService {
 
     const taxAmount = order.totalPrice * this.TAX_RATE;
 
-    // process order meta in a queue, to avoid blocking the request
-    // and to properly handle retries in case of failure
-    await this.orderQueueService.processOrderMeta({
-      businessId,
-      departmentId,
-      orderId: order.id,
-      totalAmount: order.totalPrice,
-      taxAmount,
-    });
+    await Promise.allSettled([
+      // process order meta in a queue, to avoid blocking the request
+      // and to properly handle retries in case of failure
+      this.orderQueueService.processOrderMeta({
+        businessId,
+        departmentId,
+        orderId: order.id,
+        totalAmount: order.totalPrice,
+        taxAmount,
+      }),
+
+      // invalidate business stats cache, so next request will fetch fresh data
+      this.redisService.invalidateBusinessStatsCache(businessId),
+    ]);
 
     return order;
   }
@@ -140,6 +149,18 @@ export class CommerceService {
       throw new HttpException('Invalid business', 400);
     }
 
-    return this.commerceRepository.getStats(businessId);
+    // fetch stats from cache, if available to reduce load on the database
+    // invalidated when new orders are created or when the cache expires
+    let stats = await this.redisService.getBusinessStats(businessId);
+
+    if (!stats) {
+      // fetch stats from the database
+      stats = await this.commerceRepository.getStats(businessId);
+
+      // cache the stats
+      await this.redisService.setBusinessStats(businessId, stats);
+    }
+
+    return stats;
   }
 }
