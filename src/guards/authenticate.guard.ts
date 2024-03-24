@@ -8,6 +8,7 @@ import {
 @Injectable()
 export class AuthGuard implements CanActivate {
   // should be fetch from the database or environment variable
+  // for demonstration purposes, we are hardcoding it
   private ACCESS_TOKEN = 'secret-access-token';
 
   async canActivate(context: ExecutionContext): Promise<any> {
