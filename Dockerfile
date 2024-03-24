@@ -3,6 +3,9 @@ FROM node:18-alpine AS build
 
 WORKDIR /usr/src/app
 
+# Install Yarn
+RUN npm install -g yarn
+
 COPY . .
 
 RUN yarn install
