@@ -9,4 +9,10 @@ export class Business extends BaseTable {
 
   @OneToMany(() => DepartmentHead, (departmentHead) => departmentHead.business)
   departmentHeads: DepartmentHead[];
+
+  @Column({ type: 'int', default: 0 })
+  creditScore: number;
+
+  @Column({ type: 'timestamp', nullable: true })
+  creditScoreCalculatedAt: Date;
 }

@@ -30,4 +30,18 @@ export class BusinessService {
 
     return this.businessRepository.createDepartment(business, payload);
   }
+
+  async getCreditScore(businessId: string) {
+    const business = await this.businessRepository.findBusinessById(businessId);
+
+    if (!business) {
+      throw new HttpException('Business not found', 404);
+    }
+
+    return {
+      creditScore: business.creditScore,
+      calculatedAt: business.creditScoreCalculatedAt,
+      isCalculated: business.creditScoreCalculatedAt !== null,
+    };
+  }
 }

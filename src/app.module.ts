@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BusinessModule } from './modules/business/business.module';
 import { CommerceModule } from './modules/commerce/commerce.module';
 import { BullModule } from '@nestjs/bullmq';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { BullModule } from '@nestjs/bullmq';
         },
       }),
     }),
+    ScheduleModule.forRoot(),
     BusinessModule,
     CommerceModule,
   ],
