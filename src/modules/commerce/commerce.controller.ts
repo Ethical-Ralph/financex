@@ -1,8 +1,18 @@
-import { Controller, Post, Body, Param, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  Get,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CommerceService } from './commerce.service';
 import { CreateInventoryItemDto, CreateOrderDto } from './dto';
+import { AuthGuard } from '../../guards';
 
 @Controller('commerce')
+@UseGuards(AuthGuard)
 export class CommerceController {
   constructor(private readonly commerceService: CommerceService) {}
 

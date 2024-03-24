@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Param, Get } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, UseGuards } from '@nestjs/common';
 import { BusinessService } from './business.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { CreateBusinessDepartmentDto } from './dto';
+import { AuthGuard } from '../../guards';
 
 @Controller('business')
+@UseGuards(AuthGuard)
 export class BusinessController {
   constructor(private readonly businessService: BusinessService) {}
 
