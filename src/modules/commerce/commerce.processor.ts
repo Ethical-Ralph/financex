@@ -52,7 +52,7 @@ export class CommerceProcessor extends WorkerHost {
 
         await job.updateData({
           ...job.data,
-          // update success status of the job to avoid reprocessing in case of failure
+          // update success status of the job to avoid reprocessing when retried after job failure
           success: this.buildSuccessArray(success, 'transaction_logged'),
         });
 
@@ -78,7 +78,7 @@ export class CommerceProcessor extends WorkerHost {
 
         await job.updateData({
           ...job.data,
-          // update success status of the job to avoid reprocessing in case of failure
+          // update success status of the job to avoid reprocessing when retried after job failure
           success: this.buildSuccessArray(success, 'tax_proceesed'),
         });
 
