@@ -1,4 +1,4 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CommerceRepository } from './commerce.repository';
 import { BusinessRepository } from '../business/business.repository';
@@ -15,8 +15,6 @@ export class CommerceService {
     private orderQueueService: CommerceQueueService,
     private redisService: RedisService,
   ) {}
-
-  private logger = new Logger(CommerceService.name);
 
   private TAX_RATE = 0.1;
 
