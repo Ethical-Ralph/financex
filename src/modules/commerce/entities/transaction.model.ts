@@ -1,4 +1,4 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, Document } from 'mongoose';
 
 export interface Transaction extends Document {
   businessId: string;
