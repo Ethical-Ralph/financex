@@ -20,8 +20,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
   },
   "dependencies": {
-    "@bull-board/api": "^5.15.1",
-    "@bull-board/express": "^5.15.1",
+    "@bull-board/api": "^5.15.2",
+    "@bull-board/express": "^5.15.2",
     "@nestjs-modules/ioredis": "^2.0.2",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/bullmq": "^10.1.0",
