@@ -2,6 +2,8 @@ import { NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 
 export class BasicAuthMiddleware implements NestMiddleware {
+  // should be fetch from the database or environment variable
+  // for demonstration purposes, we are hardcoding it
   private readonly username = 'admin';
   private readonly password = 'password';
   private readonly encodedCreds = Buffer.from(

@@ -88,6 +88,7 @@ $ yarn test:cov
 
   - The credit score calculation process employs a dual approach, utilizing both a cron and a queue. At midnight, a cron fetches businesses in batches, employing efficient memory management techniques, and dispatches them to a queue for further processing. The queue retrieves the business transactions in batches, handles the score computation and update business record accordingly.
   - Additionally, to prevent redundant processing when multiple instance of the server is deployed, a distributed lock mechanism using Redis is employed by the cron. Using a queue based system complements the cron and enables the system to scale efficiently to handle computations for a greater number of businesses in a timely manner. This scalability can be achieved by adding more workers to the system.
+
     <br>
 
 - **Get Business Order:**
