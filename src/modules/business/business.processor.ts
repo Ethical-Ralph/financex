@@ -10,9 +10,11 @@ export class BusinessProcessor extends WorkerHost {
     super();
   }
 
+  private logger = new Logger(BusinessProcessor.name);
+
   async process(job: Job<{ businessId: string }, any, string>): Promise<any> {
     const { businessId } = job.data;
-    Logger.log(
+    this.logger.log(
       `Processing business credit score for business ID: ${businessId}`,
     );
 
@@ -46,9 +48,9 @@ export class BusinessProcessor extends WorkerHost {
         creditScore,
       });
 
-      Logger.log(`Updated credit score for business ID: ${businessId}`);
+      this.logger.log(`Updated credit score for business ID: ${businessId}`);
     } catch (error) {
-      Logger.error(
+      this.logger.error(
         `Error processing business credit score for business ID ${businessId}: ${error.message}`,
       );
       throw error;

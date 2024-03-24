@@ -5,6 +5,8 @@ import { Injectable, Logger } from '@nestjs/common';
 export class TaxService {
   constructor(private readonly httpService: HttpService) {}
 
+  private logger = new Logger(TaxService.name);
+
   async logTax(orderDetails: {
     orderId: string;
     businessId: string;
@@ -20,9 +22,9 @@ export class TaxService {
           timeout: 35 * 1000,
         },
       );
-      Logger.log('Tax logged successfully', orderDetails.orderId);
+      this.logger.log('Tax logged successfully', orderDetails.orderId);
     } catch (error) {
-      Logger.error('Error logging tax:', error.message);
+      this.logger.error('Error logging tax:', error.message);
       throw error;
     }
   }

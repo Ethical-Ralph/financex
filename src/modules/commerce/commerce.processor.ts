@@ -26,6 +26,8 @@ export class CommerceProcessor extends WorkerHost {
     super();
   }
 
+  private logger = new Logger(CommerceProcessor.name);
+
   private buildSuccessArray(
     success: Array<TSuccessString>,
     payload: TSuccessString,
@@ -34,7 +36,7 @@ export class CommerceProcessor extends WorkerHost {
   }
 
   async process(job: Job<TCommerceOrderDetails, any, string>): Promise<any> {
-    Logger.log(`Processing job: ${job.id}`);
+    this.logger.log(`Processing job: ${job.id}`);
     const { businessId, departmentId, orderId, totalAmount, taxAmount } =
       job.data;
 
@@ -98,7 +100,7 @@ export class CommerceProcessor extends WorkerHost {
 
   @OnWorkerEvent('completed')
   onCompleted(job: Job<TCommerceOrderDetails, any, string>) {
-    Logger.log(`Job with orderId: ${job.data.orderId} completed`);
+    this.logger.log(`Job with orderId: ${job.data.orderId} completed`);
   }
 
   @OnWorkerEvent('failed')

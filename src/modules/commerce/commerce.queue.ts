@@ -15,20 +15,22 @@ export class CommerceQueueService {
     @InjectQueue(COMMERCE_QUEUE_NAME) private readonly commerceQueue: Queue,
   ) {}
 
+  private logger = new Logger(CommerceQueueService.name);
+
   async processOrderMeta(orderDetails: TCommerceOrderDetails) {
     try {
       await this.commerceQueue.add(orderDetails.orderId, orderDetails, {
         jobId: orderDetails.orderId,
       });
 
-      Logger.log(
+      this.logger.log(
         `Order meta added to queue: ${orderDetails.orderId}`,
         CommerceQueueService.name,
       );
     } catch (error) {
       // fail silently, to avoid failing the main process
       // log and send to monitoring/alerting service
-      Logger.error(
+      this.logger.error(
         `Error adding order meta to queue: ${orderDetails.orderId}`,
         error.stack,
         CommerceQueueService.name,

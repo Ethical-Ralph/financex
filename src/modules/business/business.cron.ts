@@ -14,6 +14,8 @@ export class BusinessCron {
     @InjectQueue(BUSINESS_CREDIT_SCORE_QUEUE) private businessQueue: Queue,
   ) {}
 
+  private logger = new Logger(BusinessCron.name);
+
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async calculateBusinessCreditScore() {
     // Acquire lock to prevent multiple instances of the server from running the cron job
@@ -28,17 +30,19 @@ export class BusinessCron {
     );
 
     if (!isMaster) {
-      Logger.log('Another server instance is already processing the cron job');
+      this.logger.log(
+        'Another server instance is already processing the cron job',
+      );
       return;
     }
 
     try {
-      Logger.log('Running business credit score cron job');
+      this.logger.log('Running business credit score cron job');
 
       for (let page = 1; ; page++) {
         const { hasNextPage, total } = await this.processBusinesses(page);
 
-        Logger.log(`Processed page ${page} of ${total}`);
+        this.logger.log(`Processed page ${page} of ${total}`);
 
         // Break the loop if there are no more pages to process
         if (!hasNextPage) {
@@ -46,7 +50,9 @@ export class BusinessCron {
         }
       }
     } catch (error) {
-      Logger.error(`Error processing business credit score: ${error.message}`);
+      this.logger.error(
+        `Error processing business credit score: ${error.message}`,
+      );
     } finally {
       // Release the lock
       await this.redisService.releaseLock(lockKey, uniqueServerId);
@@ -63,7 +69,7 @@ export class BusinessCron {
         limit: 100,
       });
 
-    Logger.log(`Processing ${businesses.length} businesses`);
+    this.logger.log(`Processing ${businesses.length} businesses`);
 
     // Push jobs to BullMQ queue for processing, so it can be done in parallel and scale better
     await Promise.allSettled(
@@ -74,7 +80,7 @@ export class BusinessCron {
       }),
     );
 
-    Logger.log(`Processed ${businesses.length} businesses`);
+    this.logger.log(`Processed ${businesses.length} businesses`);
 
     return {
       hasNextPage: businessMeta.hasNextPage,
