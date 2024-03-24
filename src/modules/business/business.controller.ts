@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Param, Get, UseGuards } from '@nestjs/common';
 import { BusinessService } from './business.service';
 import { CreateBusinessDto } from './dto/create-business.dto';
-import { CreateBusinessDepartmentDto } from './dto';
+import { BusinessParamsDto, CreateBusinessDepartmentDto } from './dto';
 import { AuthGuard } from '../../guards';
 
 @Controller('business')
@@ -16,14 +16,14 @@ export class BusinessController {
 
   @Post(':businessId/department')
   createDepartment(
-    @Param('businessId') id: string,
+    @Param() params: BusinessParamsDto,
     @Body() payload: CreateBusinessDepartmentDto,
   ) {
-    return this.businessService.createDepartment(id, payload);
+    return this.businessService.createDepartment(params.businessId, payload);
   }
 
   @Get(':businessId/credit-score')
-  getCreditScore(@Param('businessId') id: string) {
-    return this.businessService.getCreditScore(id);
+  getCreditScore(@Param() params: BusinessParamsDto) {
+    return this.businessService.getCreditScore(params.businessId);
   }
 }

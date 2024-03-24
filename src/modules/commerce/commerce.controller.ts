@@ -10,6 +10,10 @@ import {
 import { CommerceService } from './commerce.service';
 import { CreateInventoryItemDto, CreateOrderDto } from './dto';
 import { AuthGuard } from '../../guards';
+import {
+  BusinessDepartmentParamsDto,
+  BusinessParamsDto,
+} from '../business/dto';
 
 @Controller('commerce')
 @UseGuards(AuthGuard)
@@ -19,31 +23,37 @@ export class CommerceController {
   @Post(':businessId/order/:departmentId')
   create(
     @Body() payload: CreateOrderDto,
-    @Param('businessId') businessId: string,
-    @Param('departmentId') departmentId: string,
+    @Param() params: BusinessDepartmentParamsDto,
   ) {
-    return this.commerceService.createOrder(businessId, departmentId, payload);
+    return this.commerceService.createOrder(
+      params.businessId,
+      params.departmentId,
+      payload,
+    );
   }
 
   @Post(':businessId/inventory')
   createInventoryItem(
     @Body() payload: CreateInventoryItemDto,
-    @Param('businessId') businessId: string,
+    @Param() params: BusinessParamsDto,
   ) {
-    return this.commerceService.createInventoryItem(businessId, payload);
+    return this.commerceService.createInventoryItem(params.businessId, payload);
   }
 
   @Get(':businessId/orders')
   getBusinessOrders(
-    @Param('businessId') businessId: string,
+    @Param() params: BusinessParamsDto,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ) {
-    return this.commerceService.getBusinessOrders(businessId, { page, limit });
+    return this.commerceService.getBusinessOrders(params.businessId, {
+      page,
+      limit,
+    });
   }
 
   @Get(':businessId/stats')
-  getBusinessStats(@Param('businessId') businessId: string) {
-    return this.commerceService.getBusinessStats(businessId);
+  getBusinessStats(@Param() params: BusinessParamsDto) {
+    return this.commerceService.getBusinessStats(params.businessId);
   }
 }

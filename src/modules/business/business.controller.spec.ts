@@ -76,7 +76,7 @@ describe('BusinessController', () => {
         });
 
       await controller.createDepartment(
-        businessId,
+        { businessId },
         createBusinessDepartmentDto,
       );
 

@@ -87,6 +87,10 @@ export class BusinessProcessor extends WorkerHost {
       { maxAmount: Infinity, maxTransactions: Infinity, score: 100 },
     ];
 
+    if (totalAmount <= 0 || totalTransactions <= 0) {
+      return creditScore;
+    }
+
     for (const category of scoringSystem) {
       if (
         totalAmount <= category.maxAmount &&
