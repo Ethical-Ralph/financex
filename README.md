@@ -34,7 +34,7 @@ Follow these steps to set up and run the project:
 
 4. Build and run the containers using Docker Compose:
    ```bash
-   docker-compose --env-file .docker-compose.env up --build
+   docker compose --env-file .docker-compose.env up --build
    ```
 
 ## Dependencies
