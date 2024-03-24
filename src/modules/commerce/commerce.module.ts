@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HttpModule } from '@nestjs/axios';
 import { BullModule } from '@nestjs/bullmq';
+import { ExpressAdapter } from '@bull-board/express';
 import { CommerceService } from './commerce.service';
 import { CommerceController } from './commerce.controller';
 import { CommerceRepository } from './commerce.repository';
@@ -28,6 +29,8 @@ import { CommerceQueueService } from './commerce.queue';
     BullModule.registerQueue({
       name: COMMERCE_QUEUE_NAME,
       defaultJobOptions: {
+        removeOnComplete: false,
+        removeOnFail: false,
         // when a job fails, retry it 3 times with an exponential backoff delay of 1 second
         // before finally failing
         attempts: 3,
@@ -47,4 +50,15 @@ import { CommerceQueueService } from './commerce.queue';
     CommerceQueueService,
   ],
 })
-export class CommerceModule {}
+export class CommerceModule {
+  private readonly serverAdapter: ExpressAdapter;
+
+  constructor(private readonly commerceQueueService: CommerceQueueService) {
+    this.serverAdapter = this.commerceQueueService.getBoardAdapter();
+  }
+
+  configure(consumer: MiddlewareConsumer): void {
+    this.serverAdapter.setBasePath('/admin/queues');
+    consumer.apply(this.serverAdapter.getRouter()).forRoutes('/admin/queues');
+  }
+}
