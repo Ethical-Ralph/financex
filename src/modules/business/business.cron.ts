@@ -100,12 +100,13 @@ export class BusinessCron {
       };
     };
 
+    // acquire lock to prevent multiple instances of the server from running the cron job
+    const lockKey = 'business_credit_score';
+    const ttl = 60 * 60 * 24; // 24 hours
     const uniqueServerId = Math.random().toString(36).substring(7);
 
-    // acquire lock to prevent multiple instances of the server from running the cron job
-    const ttl = 60 * 60 * 24; // 24 hours
     const isMaster = await this.redisService.acquireLock(
-      'business_credit_score',
+      lockKey,
       uniqueServerId,
       ttl,
     );
@@ -128,10 +129,7 @@ export class BusinessCron {
     } catch (error) {
       Logger.error(`Error processing business credit score: ${error.message}`);
     } finally {
-      await this.redisService.releaseLock(
-        'business_credit_score',
-        uniqueServerId,
-      );
+      await this.redisService.releaseLock(lockKey, uniqueServerId);
     }
   }
 }
