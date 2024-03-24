@@ -56,12 +56,14 @@ export class CommerceProcessor extends WorkerHost {
           success: this.buildSuccessArray(success, 'transaction_logged'),
         });
 
-        Logger.log('Transaction logged successfully', orderId);
+        await job.log(
+          `Transaction logged successfully for orderId: ${orderId}`,
+        );
 
         success.push('transaction_logged');
       }
     } catch (error) {
-      Logger.error('Error logging transaction', error);
+      await job.log(`Error logging transaction: ${error.message}`);
       errorArray.push(`transaction_logged: ${error.message}`);
     }
 
@@ -80,10 +82,10 @@ export class CommerceProcessor extends WorkerHost {
           success: this.buildSuccessArray(success, 'tax_proceesed'),
         });
 
-        Logger.log('Tax logged successfully', orderId);
+        await job.log(`Tax logged successfully for orderId: ${orderId}`);
       }
     } catch (error) {
-      Logger.error('Error logging tax', error);
+      await job.log(`Error logging tax: ${error.message}`);
       errorArray.push(`tax_proceesed: ${error.message}`);
     }
 
