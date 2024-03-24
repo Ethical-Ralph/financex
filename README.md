@@ -30,6 +30,7 @@ Follow these steps to set up and run the project:
    MONGODB_ROOT_USER=desired_default_user
    MONGODB_ROOT_PASSWORD=desired_default_password
    MONGODB_DATABASE_NAME=desired_default_db
+   SERVER_PORT=desired_server_port
    ```
 
 4. Build and run the containers using Docker Compose:
@@ -50,7 +51,7 @@ The project dependencies are managed through Docker, eliminating the need for ma
 
 ## Usage
 
-- Once the containers are up and running, you can access the application at `http://localhost:3000`.
+- Once the containers are up and running, you can access the application at `http://{ip}:{SERVER_PORT}`.
 
 ## API Documentation
 
@@ -101,6 +102,6 @@ $ yarn test:cov
 
 ## Monitoring
 
-You can monitor the queues by visiting the URL [http://localhost:3000/admin/queues](http://localhost:3000/admin/queues). This provides real-time tracking of the status and performance of the jobs in the queues.
+You can monitor the queues by visiting the URL `http://{ip}:{SERVER_PORT}/admin/queues`. This provides real-time tracking of the status and performance of the jobs in the queues.
 
 Please note that you will be prompted to enter the username: "admin" and the password: "password" to access the monitoring interface.
