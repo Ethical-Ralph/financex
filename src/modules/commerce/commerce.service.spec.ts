@@ -2,16 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CommerceService } from './commerce.service';
 import { CommerceRepository } from './commerce.repository';
 import { BusinessRepository } from '../business/business.repository';
-import { TaxService } from './tax.service';
 import { HttpException } from '@nestjs/common';
 import { CreateOrderDto, CreateInventoryItemDto } from './dto';
 import { InventoryItem, Order } from './entities';
+import { CommerceQueueService } from './commerce.queue';
 
 describe('CommerceService', () => {
   let service: CommerceService;
   let commerceRepositoryMock: Partial<CommerceRepository>;
   let businessRepositoryMock: Partial<BusinessRepository>;
-  let taxServiceMock: Partial<TaxService>;
+  let commerceQueueService: Partial<CommerceQueueService>;
 
   beforeEach(async () => {
     commerceRepositoryMock = {
@@ -35,7 +35,6 @@ describe('CommerceService', () => {
           ...orderPayload,
         } as Order);
       }),
-      logTransaction: jest.fn().mockResolvedValue(undefined),
       getBusinessOrders: jest.fn().mockResolvedValue([]),
       createInventoryItem: jest
         .fn()
@@ -59,8 +58,8 @@ describe('CommerceService', () => {
       validateBusinessDepartment: jest.fn().mockResolvedValue(true),
     };
 
-    taxServiceMock = {
-      logTax: jest.fn().mockResolvedValue(undefined),
+    commerceQueueService = {
+      processOrderMeta: jest.fn().mockResolvedValue(undefined),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -75,8 +74,8 @@ describe('CommerceService', () => {
           useValue: businessRepositoryMock,
         },
         {
-          provide: TaxService,
-          useValue: taxServiceMock,
+          provide: CommerceQueueService,
+          useValue: commerceQueueService,
         },
       ],
     }).compile();
@@ -121,7 +120,7 @@ describe('CommerceService', () => {
       );
     });
 
-    it('should log the transaction and tax after creating an order', async () => {
+    it('should process the transaction and tax after creating an order', async () => {
       const createOrderDto: CreateOrderDto = {
         orderItems: [{ itemId: 'validItemId', quantity: 2 }],
       };
@@ -130,8 +129,7 @@ describe('CommerceService', () => {
         'validDepartmentId',
         createOrderDto,
       );
-      expect(commerceRepositoryMock.logTransaction).toBeCalled();
-      expect(taxServiceMock.logTax).toBeCalled();
+      expect(commerceQueueService.processOrderMeta).toBeCalled();
     });
 
     it('should throw an error if an item does not exist', async () => {
