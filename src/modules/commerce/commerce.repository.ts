@@ -72,4 +72,33 @@ export class CommerceRepository {
       },
     ];
   }
+
+  async getStats(businessId: string): Promise<{
+    totalOrders: number;
+    totalAmount: number;
+    totalOrdersToday: number;
+    totalAmountToday: number;
+  }> {
+    const { totalOrders, totalAmount } = await this.orderRepo
+      .createQueryBuilder('order')
+      .select('COUNT(order.id)', 'totalOrders')
+      .addSelect('SUM(order.totalPrice)', 'totalAmount')
+      .where('order.businessId = :businessId', { businessId })
+      .getRawOne();
+
+    const { totalOrdersToday, totalAmountToday } = await this.orderRepo
+      .createQueryBuilder('order')
+      .select('COUNT(order.id)', 'totalOrdersToday')
+      .addSelect('SUM(order.totalPrice)', 'totalAmountToday')
+      .where('order.businessId = :businessId', { businessId })
+      .andWhere('DATE(order.createdAt) = CURRENT_DATE')
+      .getRawOne();
+
+    return {
+      totalOrders: Number(totalOrders || 0),
+      totalAmount: Number(totalAmount || 0),
+      totalOrdersToday: Number(totalOrdersToday || 0),
+      totalAmountToday: Number(totalAmountToday || 0),
+    };
+  }
 }

@@ -130,4 +130,16 @@ export class CommerceService {
       meta,
     };
   }
+
+  async getBusinessStats(businessId: string) {
+    const businessExists = await this.businessRepository.findBusinessById(
+      businessId,
+    );
+
+    if (!businessExists) {
+      throw new HttpException('Invalid business', 400);
+    }
+
+    return this.commerceRepository.getStats(businessId);
+  }
 }

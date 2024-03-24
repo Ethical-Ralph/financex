@@ -31,4 +31,9 @@ export class CommerceController {
   ) {
     return this.commerceService.getBusinessOrders(businessId, { page, limit });
   }
+
+  @Get(':businessId/stats')
+  getBusinessStats(@Param('businessId') businessId: string) {
+    return this.commerceService.getBusinessStats(businessId);
+  }
 }
