@@ -6,6 +6,7 @@ import { Redis } from 'ioredis';
 export class RedisService {
   constructor(@InjectRedis() private redis: Redis) {}
 
+  // distributed lock
   async acquireLock(key: string, value: string, ttl = 30 * 60 * 1000) {
     const result = await this.redis.set(key, value, 'PX', ttl, 'NX');
 
